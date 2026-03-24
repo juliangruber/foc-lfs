@@ -2,7 +2,8 @@
 import { Synapse } from '@filoz/synapse-sdk'
 import { privateKeyToAccount } from 'viem/accounts'
 import bytes from 'bytes'
-import assert from 'node:assert/strict'
+import { uploadLfs, downloadLfs } from './lib/foc-lfs.js'
+import { createRandomBytesStream } from './lib/random.js'
 
 const {
   PRIVATE_KEY,
@@ -14,33 +15,6 @@ const synapse = Synapse.create({
   source: 'foc-lfs'
 })
 
-const totalBytes = bytes(SIZE)
-
-const startUpload = new Date()
-console.log(`uploading ${SIZE}...`)
-
-let bytesSent = 0
-const chunkSizeBytes = bytes('1KB')
-const source = new ReadableStream({
-  pull (controller) {
-    const remaining = totalBytes - bytesSent
-      
-    if (remaining <= 0) {
-      return controller.close()
-    }
-
-    const currentChunkSize = Math.min(remaining, chunkSizeBytes)
-    const chunk = new Uint8Array(currentChunkSize)
-
-    for (let i = 0; i < currentChunkSize; i++) {
-      chunk[i] = Math.floor(Math.random() * 256)
-    }
-
-    controller.enqueue(chunk)
-    bytesSent += currentChunkSize
-  }
-})
-
 // console.log('checking funding...')
 // const prep = await synapse.storage.prepare({
 //   dataSize: BigInt(totalBytes),
@@ -48,68 +22,30 @@ const source = new ReadableStream({
 // if (prep.transaction) {
 //   console.log('funding account...')
 //   const { hash } = await prep.transaction.execute()
-//   console.log(`✅ Account funded and approved (tx: ${hash})`)
+//   console.log(`Account funded and approved (tx: ${hash})`)
 // }
 
-const createSplitter = () => {
-  let currentUploadStream
-  let currentWriter
-  let currentBytesWritten = 0
-  const uploadSizeLimit = 1065353216
-  // const uploadSizeLimit = bytes('1MB')
-  const uploadPromises = []
+console.log(`Uploading ${SIZE}...`)
+const startUpload = new Date()
 
-  const splitter = new WritableStream({
-    async write (chunk) {
-      // FIXME
-      assert(chunk.length < uploadSizeLimit)
-      currentBytesWritten += chunk.length
+const { uploadKey, uploadResults } = await uploadLfs(
+  synapse,
+  createRandomBytesStream(bytes(SIZE))
+)
 
-      if (currentBytesWritten >= uploadSizeLimit) {
-        currentWriter.releaseLock()
-        await currentUploadStream.writable.close()
-        currentUploadStream = null
-      }
-
-      if (!currentUploadStream) {
-        currentBytesWritten = chunk.length
-        currentUploadStream = new TransformStream()
-        currentWriter = currentUploadStream.writable.getWriter()
-        uploadPromises.push(synapse.storage.upload(currentUploadStream.readable))
-        console.log(`pieces: ${uploadPromises.length}`)
-      }
-
-      await currentWriter.write(chunk)
-    },
-
-    async close () {
-      // TODO: This assumes at least one chunk
-      currentWriter.releaseLock()
-      await currentUploadStream.writable.close()
-    }
-  })
-
-  return { splitter, uploadPromises }
-}
-
-const uploadLfs = async data => {
-  const { splitter, uploadPromises } = createSplitter(data)
-  await data.pipeTo(splitter)
-  const uploadResults = await Promise.all(uploadPromises)
-  return uploadResults
-}
-
-const uploadResults = await uploadLfs(source)
+console.log(`Upload took ${Math.floor((new Date() - startUpload)/1000/60)} minutes`)
+console.log()
+console.log(`UploadKey: ${uploadKey}`)
 console.log('PieceCIDs:')
 for (const { pieceCid } of uploadResults) {
   console.log(`- ${pieceCid}`)
 }
-console.log(`Upload took ${Math.floor((new Date() - startUpload)/1000/60)} minutes`)
+console.log()
 
+console.log('Downloading...')
 const startDownload = new Date()
-console.log('downloading...')
-await Promise.all(uploadResults.map(uploadResult => {
-  return synapse.storage.download({ pieceCid: uploadResult.pieceCid })
-}))
-console.log(`✅ Download successful!`)
-console.log(`download took ${Math.floor((new Date() - startDownload) / 1000 / 60)} minutes`)
+
+const downloadStream = await downloadLfs(synapse, uploadKey)
+await downloadStream.pipeTo(new WritableStream())
+
+console.log(`Download took ${Math.floor((new Date() - startDownload) / 1000 / 60)} minutes`)
