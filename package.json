@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@filoz/synapse-sdk": "^0.40.0",
+    "bytes": "^3.1.2",
+    "viem": "^2.47.6"
+  }
+}
