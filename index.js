@@ -105,3 +105,11 @@ for (const { pieceCid } of uploadResults) {
   console.log(`- ${pieceCid}`)
 }
 console.log(`Upload took ${Math.floor((new Date() - startUpload)/1000/60)} minutes`)
+
+const startDownload = new Date()
+console.log('downloading...')
+await Promise.all(uploadResults.map(uploadResult => {
+  return synapse.storage.download({ pieceCid: uploadResult.pieceCid })
+}))
+console.log(`✅ Download successful!`)
+console.log(`download took ${Math.floor((new Date() - startDownload) / 1000 / 60)} minutes`)
