@@ -22,3 +22,10 @@ for (const { pieceCid } of uploadResults) {
 
 await downloadLfs(synapse, uploadKey)
 ```
+
+## How it works
+
+- The upload stream is chunked according to piece size limits
+- For each chunk, one piece is stored
+- The list of piece Cids is published to IPNS, resulting in an `uploadKey`
+- For download given `uploadKey`, the process is reversed
