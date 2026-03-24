@@ -42,7 +42,7 @@ for (const { pieceCid } of uploadResults) {
 }
 console.log()
 
-console.log('Downloading...')
+console.log(`Downloading ${uploadKey}...`)
 const startDownload = new Date()
 
 const downloadStream = await downloadLfs(synapse, uploadKey)
