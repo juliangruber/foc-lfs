@@ -5,7 +5,7 @@ Streaming large file upload and download using Synapse SDK.
 
 ## Usage
 
-```
+```js
 import { uploadLfs, downloadLfs } from './lib/foc-lfs.js'
 import { createRandomBytesStream } from './lib/random.js'
 
