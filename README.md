@@ -6,7 +6,7 @@ Streaming large file upload and download using Synapse SDK.
 ## Usage
 
 ```js
-import { uploadLfs, downloadLfs } from './lib/foc-lfs.js'
+import { uploadLfs, downloadLfs, deleteLfs } from './lib/foc-lfs.js'
 import { createRandomBytesStream } from './lib/random.js'
 
 const { uploadKey, uploadResults } = await uploadLfs(
@@ -30,3 +30,17 @@ await deleteLfs(synapse, uploadKey)
 - For each chunk, one piece is stored
 - The list of piece Cids is published to IPNS, resulting in an `uploadKey`
 - For download given `uploadKey`, the process is reversed
+
+## API
+
+### uploadLfs(Synapse, ReadableStream)
+
+Returns `Promise<{uploadKey: string, uploadResults: []Synapse.UploadResult}>`.
+
+### downloadLfs(Synapse, uploadKey)
+
+Returns `Promise<ReadableStream>`.
+
+### deleteLfs(Synapse, uploadKey)
+
+Returns `Promise<void>`.
