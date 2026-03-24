@@ -48,4 +48,11 @@ const startDownload = new Date()
 const downloadStream = await downloadLfs(synapse, uploadKey)
 await downloadStream.pipeTo(new WritableStream())
 
-console.log(`Download took ${Math.floor((new Date() - startDownload) / 1000 / 60)} minutes`)
+console.log(`Download took ${Math.floor((new Date() - startDownload) / 1000)} seconds`)
+
+console.log('Deleting...')
+const startDelete = new Date()
+
+await deleteLfs(synapse, uploadKey)
+
+console.log(`Deletion took ${Math.floor((new Date() - startDelete) / 1000)} seconds`)

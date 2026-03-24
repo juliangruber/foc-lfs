@@ -20,7 +20,8 @@ for (const { pieceCid } of uploadResults) {
   console.log(`- ${pieceCid}`)
 }
 
-await downloadLfs(synapse, uploadKey)
+await downloadLfs(synapse, uploadKey) // returns readable stream
+await deleteLfs(synapse, uploadKey)
 ```
 
 ## How it works
