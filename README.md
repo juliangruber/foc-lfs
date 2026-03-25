@@ -31,6 +31,10 @@ await deleteLfs(synapse, uploadKey)
 - The list of piece Cids is published to IPNS, resulting in an `uploadKey`
 - For download given `uploadKey`, the process is reversed
 
+## Limitations
+
+- W3name/IPNS revisions live for 1 year after creation by default. To keep content available, they need to be updated periodically.
+
 ## API
 
 ### uploadLfs(Synapse, ReadableStream)
