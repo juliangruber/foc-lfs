@@ -3,7 +3,7 @@ Large File Storage on FOC.
 
 Streaming large file upload and download using Synapse SDK.
 
-![Demo video](https://drive.google.com/file/d/1HNw8ng_x7Gd_9Ep1H-OMzsA5jkxhRdGy/view?usp=sharing)
+[Demo video](https://drive.google.com/file/d/1HNw8ng_x7Gd_9Ep1H-OMzsA5jkxhRdGy/view?usp=sharing)
 
 ## Usage
 
