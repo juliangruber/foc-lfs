@@ -35,6 +35,10 @@ await deleteLfs(synapse, uploadKey)
 
 - W3name/IPNS revisions live for 1 year after creation by default. To keep content available, they need to be updated periodically.
 
+## TODO
+
+- Make chunking trustless by using root commp as IPNS key
+
 ## API
 
 ### uploadLfs(Synapse, ReadableStream)
